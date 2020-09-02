@@ -14,5 +14,7 @@ sensor = LC709023F(i2c)
 
 print("IC version:", hex(sensor.ic_version))
 while True:
-    print("Battery: %0.3f Volts / %0.1f %%" % (sensor.cell_voltage, sensor.cell_percent))
+    print(
+        "Battery: %0.3f Volts / %0.1f %%" % (sensor.cell_voltage, sensor.cell_percent)
+    )
     time.sleep(1)

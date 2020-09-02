@@ -41,6 +41,7 @@ LC709203F_CMD_INITRSOC = const(0x07)
 LC709203F_CMD_CELLVOLTAGE = const(0x09)
 LC709203F_CMD_CELLITE = const(0x0F)
 
+
 class CV:
     """struct helper"""
 
@@ -61,21 +62,21 @@ class CV:
         """Validate that a given value is a member"""
         return value in cls.string
 
+
 class PowerMode(CV):
     """Options for ``power_mode``"""
+
     pass  # pylint: disable=unnecessary-pass
 
 
 PowerMode.add_values(
-    (
-        ("OPERATE", 0x0001, "Operate", None),
-        ("SLEEP", 0x0002, "Sleep", None),
-    )
+    (("OPERATE", 0x0001, "Operate", None), ("SLEEP", 0x0002, "Sleep", None),)
 )
 
 
 class PackSize(CV):
     """Options for ``pack_size``"""
+
     pass  # pylint: disable=unnecessary-pass
 
 
@@ -91,19 +92,18 @@ PackSize.add_values(
 )
 
 
-
 class LC709023F:
     """Interface library for LC709023F battery monitoring and fuel gauge sensors"""
-    
+
     def __init__(self, i2c_bus, address=LC709023F_I2CADDR_DEFAULT):
         self.i2c_device = i2c_device.I2CDevice(i2c_bus, address)
         self._buf = bytearray(10)
         self.power_mode = PowerMode.OPERATE
         self.pack_size = PackSize.MAH500
         self.init_RSOC()
-        
+
     def init_RSOC(self):
-        self._write_word(LC709203F_CMD_INITRSOC, 0xAA55);
+        self._write_word(LC709203F_CMD_INITRSOC, 0xAA55)
 
     @property
     def cell_voltage(self):
@@ -119,13 +119,12 @@ class LC709023F:
     def ic_version(self):
         """Returns read-only chip version"""
         return self._read_word(LC709203F_CMD_ICVERSION)
-    
 
     @property
     def power_mode(self):
         """Returns current power mode (operating or sleeping)"""
         return self._read_word(LC709203F_CMD_POWERMODE)
-    
+
     @power_mode.setter
     def power_mode(self, mode):
         if not PowerMode.is_valid(mode):
@@ -136,7 +135,7 @@ class LC709023F:
     def pack_size(self):
         """Returns current battery pack size"""
         return self._read_word(LC709203F_CMD_APA)
-    
+
     @pack_size.setter
     def pack_size(self, size):
         if not PackSize.is_valid(size):
@@ -157,23 +156,23 @@ class LC709023F:
                     crc <<= 1
         return crc & 0xFF
 
-
     def _read_word(self, command):
-        self._buf[0] = LC709023F_I2CADDR_DEFAULT * 2 # write byte
-        self._buf[1] = command                       # command / register
-        self._buf[2] = self._buf[0] | 0x1            # read byte
+        self._buf[0] = LC709023F_I2CADDR_DEFAULT * 2  # write byte
+        self._buf[1] = command  # command / register
+        self._buf[2] = self._buf[0] | 0x1  # read byte
 
         with self.i2c_device as i2c:
-            i2c.write_then_readinto(self._buf, self._buf, out_start=1, out_end=2, in_start=3, in_end=7)
+            i2c.write_then_readinto(
+                self._buf, self._buf, out_start=1, out_end=2, in_start=3, in_end=7
+            )
         crc8 = self._generate_crc(self._buf[0:5])
         if crc8 != self._buf[5]:
             raise RuntimeError("CRC failure on reading word")
         return (self._buf[4] << 8) | self._buf[3]
 
-
     def _write_word(self, command, data):
-        self._buf[0] = LC709023F_I2CADDR_DEFAULT * 2 # write byte
-        self._buf[1] = command                       # command / register
+        self._buf[0] = LC709023F_I2CADDR_DEFAULT * 2  # write byte
+        self._buf[1] = command  # command / register
         self._buf[2] = data & 0xFF
         self._buf[3] = (data >> 8) & 0xFF
         self._buf[4] = self._generate_crc(self._buf[0:4])
