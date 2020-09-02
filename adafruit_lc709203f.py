@@ -98,11 +98,12 @@ class LC709023F:
     def __init__(self, i2c_bus, address=LC709023F_I2CADDR_DEFAULT):
         self.i2c_device = i2c_device.I2CDevice(i2c_bus, address)
         self._buf = bytearray(10)
-        self.power_mode = PowerMode.OPERATE
-        self.pack_size = PackSize.MAH500
+        self.power_mode = PowerMode.OPERATE  # pylint: disable=no-member
+        self.pack_size = PackSize.MAH500  # pylint: disable=no-member
         self.init_RSOC()
 
-    def init_RSOC(self):
+    def init_RSOC(self):  # pylint: disable=invalid-name
+        """ Initialize the state of charge calculator """
         self._write_word(LC709203F_CMD_INITRSOC, 0xAA55)
 
     @property
