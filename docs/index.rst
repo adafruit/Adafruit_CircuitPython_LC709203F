@@ -26,7 +26,7 @@ Table of Contents
 .. toctree::
     :caption: Related Products
 
-  * Adafruit LC709023 Breakout: https://www.adafruit.com/product/4712
+    Adafruit LC709023 Breakout <https://www.adafruit.com/product/4712>
 
 .. toctree::
     :caption: Other Links
