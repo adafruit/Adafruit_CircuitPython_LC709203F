@@ -9,8 +9,7 @@ from adafruit_lc709203f import LC709023F
 print("LC709023F simple test")
 print("Make sure LiPoly battery is plugged into the board!")
 
-i2c = board.I2C()
-sensor = LC709023F(i2c)
+sensor = LC709023F(board.I2C())
 
 print("IC version:", hex(sensor.ic_version))
 while True:
