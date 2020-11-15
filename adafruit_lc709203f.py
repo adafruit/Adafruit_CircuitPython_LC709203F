@@ -35,6 +35,7 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_LC709203F.git"
 
 LC709023F_I2CADDR_DEFAULT = const(0x0B)
 LC709203F_CMD_ICVERSION = const(0x11)
+LC709203F_CMD_BATTPROF = const(0x12)
 LC709203F_CMD_POWERMODE = const(0x15)
 LC709203F_CMD_APA = const(0x0B)
 LC709203F_CMD_INITRSOC = const(0x07)
@@ -100,6 +101,7 @@ class LC709023F:
         self._buf = bytearray(10)
         self.power_mode = PowerMode.OPERATE  # pylint: disable=no-member
         self.pack_size = PackSize.MAH500  # pylint: disable=no-member
+        self.battery_profile = 1
         self.init_RSOC()
 
     def init_RSOC(self):  # pylint: disable=invalid-name
@@ -131,6 +133,17 @@ class LC709023F:
         if not PowerMode.is_valid(mode):
             raise AttributeError("power_mode must be a PowerMode")
         self._write_word(LC709203F_CMD_POWERMODE, mode)
+
+    @property
+    def battery_profile(self):
+        """Returns current battery profile (0 or 1)"""
+        return self._read_word(LC709203F_CMD_BATTPROF)
+
+    @battery_profile.setter
+    def battery_profile(self, mode):
+        if not mode in (0, 1):
+            raise AttributeError("battery_profile must be 0 or 1")
+        self._write_word(LC709203F_CMD_BATTPROF, mode)
 
     @property
     def pack_size(self):
