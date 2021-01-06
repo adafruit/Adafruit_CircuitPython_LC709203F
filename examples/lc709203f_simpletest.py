@@ -4,12 +4,12 @@
 
 import time
 import board
-from adafruit_lc709203f import LC709023F
+from adafruit_lc709203f import LC709203F
 
-print("LC709023F simple test")
+print("LC709203F simple test")
 print("Make sure LiPoly battery is plugged into the board!")
 
-sensor = LC709023F(board.I2C())
+sensor = LC709203F(board.I2C())
 
 print("IC version:", hex(sensor.ic_version))
 while True:

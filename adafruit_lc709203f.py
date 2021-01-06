@@ -33,7 +33,7 @@ import adafruit_bus_device.i2c_device as i2c_device
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_LC709203F.git"
 
-LC709023F_I2CADDR_DEFAULT = const(0x0B)
+LC709203F_I2CADDR_DEFAULT = const(0x0B)
 LC709203F_CMD_ICVERSION = const(0x11)
 LC709203F_CMD_BATTPROF = const(0x12)
 LC709203F_CMD_POWERMODE = const(0x15)
@@ -93,10 +93,10 @@ PackSize.add_values(
 )
 
 
-class LC709023F:
-    """Interface library for LC709023F battery monitoring and fuel gauge sensors"""
+class LC709203F:
+    """Interface library for LC709203F battery monitoring and fuel gauge sensors"""
 
-    def __init__(self, i2c_bus, address=LC709023F_I2CADDR_DEFAULT):
+    def __init__(self, i2c_bus, address=LC709203F_I2CADDR_DEFAULT):
         self.i2c_device = i2c_device.I2CDevice(i2c_bus, address)
         self._buf = bytearray(10)
         self.power_mode = PowerMode.OPERATE  # pylint: disable=no-member
@@ -171,7 +171,7 @@ class LC709023F:
         return crc & 0xFF
 
     def _read_word(self, command):
-        self._buf[0] = LC709023F_I2CADDR_DEFAULT * 2  # write byte
+        self._buf[0] = LC709203F_I2CADDR_DEFAULT * 2  # write byte
         self._buf[1] = command  # command / register
         self._buf[2] = self._buf[0] | 0x1  # read byte
 
@@ -185,7 +185,7 @@ class LC709023F:
         return (self._buf[4] << 8) | self._buf[3]
 
     def _write_word(self, command, data):
-        self._buf[0] = LC709023F_I2CADDR_DEFAULT * 2  # write byte
+        self._buf[0] = LC709203F_I2CADDR_DEFAULT * 2  # write byte
         self._buf[1] = command  # command / register
         self._buf[2] = data & 0xFF
         self._buf[3] = (data >> 8) & 0xFF
