@@ -71,7 +71,10 @@ class PowerMode(CV):
 
 
 PowerMode.add_values(
-    (("OPERATE", 0x0001, "Operate", None), ("SLEEP", 0x0002, "Sleep", None),)
+    (
+        ("OPERATE", 0x0001, "Operate", None),
+        ("SLEEP", 0x0002, "Sleep", None),
+    )
 )
 
 
