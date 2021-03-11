@@ -171,7 +171,8 @@ class LC709203F:
                     crc = (crc << 1) ^ 0x07
                 else:
                     crc <<= 1
-        return crc & 0xFF
+                crc &= 0xFF
+        return crc
 
     def _read_word(self, command):
         self._buf[0] = LC709203F_I2CADDR_DEFAULT * 2  # write byte
