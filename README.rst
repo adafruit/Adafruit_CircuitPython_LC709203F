@@ -62,6 +62,8 @@ To install in a virtual environment in your current project:
 Usage Example
 =============
 
+Examples of using this module are in examples folder.
+
 Contributing
 ============
 

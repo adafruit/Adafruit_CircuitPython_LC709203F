@@ -16,15 +16,20 @@ Implementation Notes
 
 **Hardware:**
 
- * Adafruit LC709023 Breakout: https://www.adafruit.com/product/4712
+* `Adafruit LC709203F LiPoly / LiIon Fuel Gauge and Battery Monitor
+  <https://www.adafruit.com/product/4712>`_ (Product ID: 4712)
 
 **Software and Dependencies:**
 
 * Adafruit CircuitPython firmware for the supported boards:
-  https://github.com/adafruit/circuitpython/releases
+  https://circuitpython.org/downloads
 
-# * Adafruit's Bus Device library: https://github.com/adafruit/Adafruit_CircuitPython_BusDevice
-# * Adafruit's Register library: https://github.com/adafruit/Adafruit_CircuitPython_Register
+* Adafruit's Bus Device library:
+  https://github.com/adafruit/Adafruit_CircuitPython_BusDevice
+
+* Adafruit's Register library:
+  https://github.com/adafruit/Adafruit_CircuitPython_Register
+
 """
 
 from micropython import const
@@ -100,7 +105,12 @@ PackSize.add_values(
 
 
 class LC709203F:
-    """Interface library for LC709203F battery monitoring and fuel gauge sensors"""
+    """Interface library for LC709203F battery monitoring and fuel gauge sensors
+
+    :param ~busio.I2C i2c_bus: The I2C bus the device is connected to
+    :param int address: The I2C device address. Defaults to :const:`0x0B`
+
+    """
 
     def __init__(self, i2c_bus, address=LC709203F_I2CADDR_DEFAULT):
         self.i2c_device = i2c_device.I2CDevice(i2c_bus, address)

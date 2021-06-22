@@ -23,6 +23,8 @@ Table of Contents
 .. toctree::
     :caption: Tutorials
 
+    Adafruit LC709023 Breakout Learning Guide <https://learn.adafruit.com/adafruit-lc709203f-lipo-lipoly-battery-monitor/overview>
+
 .. toctree::
     :caption: Related Products
 
