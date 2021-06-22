@@ -41,6 +41,9 @@ LC709203F_CMD_APA = const(0x0B)
 LC709203F_CMD_INITRSOC = const(0x07)
 LC709203F_CMD_CELLVOLTAGE = const(0x09)
 LC709203F_CMD_CELLITE = const(0x0F)
+LC709203F_CMD_CELLTEMPERATURE = const(0x08)
+LC709203F_CMD_THERMISTORB = const(0x06)
+LC709203F_CMD_STATUSBIT = const(0x16)
 
 
 class CV:
@@ -122,6 +125,18 @@ class LC709203F:
         return self._read_word(LC709203F_CMD_CELLITE) / 10
 
     @property
+    def cell_temperature(self):
+        """Returns the temperature of the cell"""
+        return self._read_word(LC709203F_CMD_CELLTEMPERATURE) / 10 - 273.15
+
+    @cell_temperature.setter
+    def cell_temperature(self, value):
+        """Sets the temperature in the LC709203F"""
+        if self.thermistor_enable:
+            raise AttributeError("temperature can only be set in i2c mode")
+        self._write_word(LC709203F_CMD_CELLTEMPERATURE, int(value + 273.15) * 10)
+
+    @property
     def ic_version(self):
         """Returns read-only chip version"""
         return self._read_word(LC709203F_CMD_ICVERSION)
@@ -158,6 +173,28 @@ class LC709203F:
         if not PackSize.is_valid(size):
             raise AttributeError("pack_size must be a PackSize")
         self._write_word(LC709203F_CMD_APA, size)
+
+    @property
+    def thermistor_bconstant(self):
+        """Returns the thermistor B-constant"""
+        return self._read_word(LC709203F_CMD_THERMISTORB)
+
+    @thermistor_bconstant.setter
+    def thermistor_bconstant(self, bconstant):
+        """Sets the thermistor B-constant"""
+        self._write_word(LC709203F_CMD_THERMISTORB, bconstant)
+
+    @property
+    def thermistor_enable(self):
+        """Returns the current temperature source"""
+        return self._read_word(LC709203F_CMD_STATUSBIT)
+
+    @thermistor_enable.setter
+    def thermistor_enable(self, status):
+        """Sets the temperature source to Tsense"""
+        if not status in (True, False):
+            raise AttributeError("thermistor_enable must be True or False")
+        self._write_word(LC709203F_CMD_STATUSBIT, status)
 
     # pylint: disable=no-self-use
     def _generate_crc(self, data):
