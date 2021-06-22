@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2021 Daniel Griswold
 #
 # SPDX-License-Identifier: MIT
- 
+
 import time
 import board
 from adafruit_lc709203f import LC709203F
@@ -17,7 +17,5 @@ sensor.thermistor_enable = True
 
 print("IC version:", hex(sensor.ic_version))
 while True:
-    print(
-        "Cell Temperature: %0.2f C" % (sensor.cell_temperature)
-    )
+    print("Cell Temperature: %0.2f C" % (sensor.cell_temperature))
     time.sleep(1)

@@ -123,12 +123,12 @@ class LC709203F:
     def cell_percent(self):
         """Returns percentage of cell capacity"""
         return self._read_word(LC709203F_CMD_CELLITE) / 10
-       
+
     @property
     def cell_temperature(self):
         """Returns the temperature of the cell"""
         return self._read_word(LC709203F_CMD_CELLTEMPERATURE) / 10 - 273.15
-    
+
     @cell_temperature.setter
     def cell_temperature(self, value):
         """Sets the temperature in the LC709203F"""
@@ -173,28 +173,28 @@ class LC709203F:
         if not PackSize.is_valid(size):
             raise AttributeError("pack_size must be a PackSize")
         self._write_word(LC709203F_CMD_APA, size)
-        
+
     @property
     def thermistor_bconstant(self):
         """Returns the thermistor B-constant"""
         return self._read_word(LC709203F_CMD_THERMISTORB)
-    
+
     @thermistor_bconstant.setter
-    def thermistor_bconstant(self,bconstant):
+    def thermistor_bconstant(self, bconstant):
         """Sets the thermistor B-constant"""
         self._write_word(LC709203F_CMD_THERMISTORB, bconstant)
-        
+
     @property
     def thermistor_enable(self):
         """Returns the current temperature source"""
         return self._read_word(LC709203F_CMD_STATUSBIT)
-        
+
     @thermistor_enable.setter
-    def thermistor_enable(self,status):
+    def thermistor_enable(self, status):
         """Sets the temperature source to Tsense"""
         if not status in (True, False):
             raise AttributeError("thermistor_enable must be True or False")
-        self._write_word(LC709203F_CMD_STATUSBIT,status)
+        self._write_word(LC709203F_CMD_STATUSBIT, status)
 
     # pylint: disable=no-self-use
     def _generate_crc(self, data):
