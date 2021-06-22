@@ -6,3 +6,4 @@
 
 .. automodule:: adafruit_lc709203f
    :members:
+   :exclude-members: CV
