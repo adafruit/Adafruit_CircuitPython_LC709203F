@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2021 Daniel Griswold
+#
+# SPDX-License-Identifier: MIT
+ 
 import time
 import board
 from adafruit_lc709203f import LC709203F
