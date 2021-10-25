@@ -64,6 +64,11 @@ Usage Example
 
 Examples of using this module are in examples folder.
 
+Documentation
+=============
+
+API documentation for this library can be found on `Read the Docs <https://circuitpython.readthedocs.io/projects/lc709203f/en/latest/>`_.
+
 Contributing
 ============
 
