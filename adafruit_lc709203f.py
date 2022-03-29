@@ -122,7 +122,7 @@ class LC709203F:
         self.init_RSOC()
 
     def init_RSOC(self):  # pylint: disable=invalid-name
-        """ Initialize the state of charge calculator """
+        """Initialize the state of charge calculator"""
         self._write_word(LC709203F_CMD_INITRSOC, 0xAA55)
 
     @property
