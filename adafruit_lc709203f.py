@@ -35,7 +35,7 @@ Implementation Notes
 from micropython import const
 from adafruit_bus_device import i2c_device
 
-__version__ = "0.0.0-auto.0"
+__version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_LC709203F.git"
 
 LC709203F_I2CADDR_DEFAULT = const(0x0B)
