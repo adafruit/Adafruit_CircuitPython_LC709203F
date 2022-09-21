@@ -35,6 +35,14 @@ Implementation Notes
 from micropython import const
 from adafruit_bus_device import i2c_device
 
+try:
+    from typing import Tuple, Union
+    from typing_extensions import Literal
+    from circuitpython_typing import ReadableBuffer
+    from busio import I2C
+except ImportError:
+    pass
+
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_LC709203F.git"
 
@@ -55,7 +63,7 @@ class CV:
     """struct helper"""
 
     @classmethod
-    def add_values(cls, value_tuples):
+    def add_values(cls, value_tuples: Tuple[str, int, str, Union[int, None]]) -> None:
         """Add CV values to the class"""
         cls.string = {}
         cls.lsb = {}
@@ -67,7 +75,7 @@ class CV:
             cls.lsb[value] = lsb
 
     @classmethod
-    def is_valid(cls, value):
+    def is_valid(cls, value: int) -> bool:
         """Validate that a given value is a member"""
         return value in cls.string
 
@@ -113,7 +121,7 @@ class LC709203F:
 
     """
 
-    def __init__(self, i2c_bus, address=LC709203F_I2CADDR_DEFAULT):
+    def __init__(self, i2c_bus: I2C, address: int = LC709203F_I2CADDR_DEFAULT) -> None:
         self.i2c_device = i2c_device.I2CDevice(i2c_bus, address)
         self._buf = bytearray(10)
         self.power_mode = PowerMode.OPERATE  # pylint: disable=no-member
@@ -121,94 +129,94 @@ class LC709203F:
         self.battery_profile = 1
         self.init_RSOC()
 
-    def init_RSOC(self):  # pylint: disable=invalid-name
+    def init_RSOC(self) -> None:  # pylint: disable=invalid-name
         """Initialize the state of charge calculator"""
         self._write_word(LC709203F_CMD_INITRSOC, 0xAA55)
 
     @property
-    def cell_voltage(self):
+    def cell_voltage(self) -> float:
         """Returns floating point voltage"""
         return self._read_word(LC709203F_CMD_CELLVOLTAGE) / 1000
 
     @property
-    def cell_percent(self):
+    def cell_percent(self) -> float:
         """Returns percentage of cell capacity"""
         return self._read_word(LC709203F_CMD_CELLITE) / 10
 
     @property
-    def cell_temperature(self):
+    def cell_temperature(self) -> float:
         """Returns the temperature of the cell"""
         return self._read_word(LC709203F_CMD_CELLTEMPERATURE) / 10 - 273.15
 
     @cell_temperature.setter
-    def cell_temperature(self, value):
+    def cell_temperature(self, value: float) -> None:
         """Sets the temperature in the LC709203F"""
         if self.thermistor_enable:
             raise AttributeError("temperature can only be set in i2c mode")
         self._write_word(LC709203F_CMD_CELLTEMPERATURE, int(value + 273.15) * 10)
 
     @property
-    def ic_version(self):
+    def ic_version(self) -> int:
         """Returns read-only chip version"""
         return self._read_word(LC709203F_CMD_ICVERSION)
 
     @property
-    def power_mode(self):
+    def power_mode(self) -> Literal[0, 1]:
         """Returns current power mode (operating or sleeping)"""
         return self._read_word(LC709203F_CMD_POWERMODE)
 
     @power_mode.setter
-    def power_mode(self, mode):
+    def power_mode(self, mode: Literal[0, 1]) -> None:
         if not PowerMode.is_valid(mode):
             raise AttributeError("power_mode must be a PowerMode")
         self._write_word(LC709203F_CMD_POWERMODE, mode)
 
     @property
-    def battery_profile(self):
+    def battery_profile(self) -> Literal[0, 1]:
         """Returns current battery profile (0 or 1)"""
         return self._read_word(LC709203F_CMD_BATTPROF)
 
     @battery_profile.setter
-    def battery_profile(self, mode):
+    def battery_profile(self, mode: Literal[0, 1]) -> None:
         if not mode in (0, 1):
             raise AttributeError("battery_profile must be 0 or 1")
         self._write_word(LC709203F_CMD_BATTPROF, mode)
 
     @property
-    def pack_size(self):
+    def pack_size(self) -> int:
         """Returns current battery pack size"""
         return self._read_word(LC709203F_CMD_APA)
 
     @pack_size.setter
-    def pack_size(self, size):
+    def pack_size(self, size: int) -> None:
         if not PackSize.is_valid(size):
             raise AttributeError("pack_size must be a PackSize")
         self._write_word(LC709203F_CMD_APA, size)
 
     @property
-    def thermistor_bconstant(self):
+    def thermistor_bconstant(self) -> int:
         """Returns the thermistor B-constant"""
         return self._read_word(LC709203F_CMD_THERMISTORB)
 
     @thermistor_bconstant.setter
-    def thermistor_bconstant(self, bconstant):
+    def thermistor_bconstant(self, bconstant: int) -> None:
         """Sets the thermistor B-constant"""
         self._write_word(LC709203F_CMD_THERMISTORB, bconstant)
 
     @property
-    def thermistor_enable(self):
+    def thermistor_enable(self) -> int:
         """Returns the current temperature source"""
         return self._read_word(LC709203F_CMD_STATUSBIT)
 
     @thermistor_enable.setter
-    def thermistor_enable(self, status):
+    def thermistor_enable(self, status: Union[Literal[0, 1], bool]) -> None:
         """Sets the temperature source to Tsense"""
         if not status in (True, False):
             raise AttributeError("thermistor_enable must be True or False")
         self._write_word(LC709203F_CMD_STATUSBIT, status)
 
     # pylint: disable=no-self-use
-    def _generate_crc(self, data):
+    def _generate_crc(self, data: ReadableBuffer) -> int:
         """8-bit CRC algorithm for checking data"""
         crc = 0x00
         # calculates 8-Bit checksum with given polynomial
@@ -222,7 +230,7 @@ class LC709203F:
                 crc &= 0xFF
         return crc
 
-    def _read_word(self, command):
+    def _read_word(self, command: int) -> int:
         self._buf[0] = LC709203F_I2CADDR_DEFAULT * 2  # write byte
         self._buf[1] = command  # command / register
         self._buf[2] = self._buf[0] | 0x1  # read byte
@@ -236,7 +244,7 @@ class LC709203F:
             raise RuntimeError("CRC failure on reading word")
         return (self._buf[4] << 8) | self._buf[3]
 
-    def _write_word(self, command, data):
+    def _write_word(self, command: int, data: int) -> None:
         self._buf[0] = LC709203F_I2CADDR_DEFAULT * 2  # write byte
         self._buf[1] = command  # command / register
         self._buf[2] = data & 0xFF
