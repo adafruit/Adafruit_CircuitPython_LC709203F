@@ -36,7 +36,7 @@ from micropython import const
 from adafruit_bus_device import i2c_device
 
 try:
-    from typing import Tuple, Union
+    from typing import Iterable, Optional, Tuple, Union
     from typing_extensions import Literal
     from circuitpython_typing import ReadableBuffer
     from busio import I2C
@@ -63,7 +63,9 @@ class CV:
     """struct helper"""
 
     @classmethod
-    def add_values(cls, value_tuples: Tuple[str, int, str, Union[int, None]]) -> None:
+    def add_values(
+        cls, value_tuples: Iterable[Tuple[str, int, str, Optional[float]]]
+    ) -> None:
         """Add CV values to the class"""
         cls.string = {}
         cls.lsb = {}
@@ -211,7 +213,7 @@ class LC709203F:
     @thermistor_enable.setter
     def thermistor_enable(self, status: Union[Literal[0, 1], bool]) -> None:
         """Sets the temperature source to Tsense"""
-        if not status in (True, False):
+        if not isinstance(status, bool):
             raise AttributeError("thermistor_enable must be True or False")
         self._write_word(LC709203F_CMD_STATUSBIT, status)
 
