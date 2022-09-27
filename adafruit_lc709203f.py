@@ -36,7 +36,7 @@ from micropython import const
 from adafruit_bus_device import i2c_device
 
 try:
-    from typing import Iterable, Optional, Tuple, Union
+    from typing import Iterable, Optional, Tuple
     from typing_extensions import Literal
     from circuitpython_typing import ReadableBuffer
     from busio import I2C
@@ -163,12 +163,12 @@ class LC709203F:
         return self._read_word(LC709203F_CMD_ICVERSION)
 
     @property
-    def power_mode(self) -> Literal[0, 1]:
+    def power_mode(self) -> Literal[1, 2]:
         """Returns current power mode (operating or sleeping)"""
         return self._read_word(LC709203F_CMD_POWERMODE)
 
     @power_mode.setter
-    def power_mode(self, mode: Literal[0, 1]) -> None:
+    def power_mode(self, mode: Literal[1, 2]) -> None:
         if not PowerMode.is_valid(mode):
             raise AttributeError("power_mode must be a PowerMode")
         self._write_word(LC709203F_CMD_POWERMODE, mode)
@@ -206,12 +206,12 @@ class LC709203F:
         self._write_word(LC709203F_CMD_THERMISTORB, bconstant)
 
     @property
-    def thermistor_enable(self) -> int:
+    def thermistor_enable(self) -> bool:
         """Returns the current temperature source"""
         return self._read_word(LC709203F_CMD_STATUSBIT)
 
     @thermistor_enable.setter
-    def thermistor_enable(self, status: Union[Literal[0, 1], bool]) -> None:
+    def thermistor_enable(self, status: bool) -> None:
         """Sets the temperature source to Tsense"""
         if not isinstance(status, bool):
             raise AttributeError("thermistor_enable must be True or False")
