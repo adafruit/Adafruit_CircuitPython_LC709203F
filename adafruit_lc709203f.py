@@ -32,6 +32,8 @@ Implementation Notes
 
 """
 
+import time
+
 from micropython import const
 from adafruit_bus_device import i2c_device
 
@@ -124,12 +126,25 @@ class LC709203F:
     """
 
     def __init__(self, i2c_bus: I2C, address: int = LC709203F_I2CADDR_DEFAULT) -> None:
-        self.i2c_device = i2c_device.I2CDevice(i2c_bus, address)
+        value_exc = None
+        for _ in range(3):
+            try:
+                self.i2c_device = i2c_device.I2CDevice(i2c_bus, address)
+                break
+            except ValueError as exc:
+                value_exc = exc
+                # Wait a bit for the sensor to wake up.
+                time.sleep(0.1)
+        else:
+            raise value_exc
+
         self._buf = bytearray(10)
         self.power_mode = PowerMode.OPERATE  # pylint: disable=no-member
         self.pack_size = PackSize.MAH500  # pylint: disable=no-member
-        self.battery_profile = 1
+        self.battery_profile = 1  # 4.2V profile
+        time.sleep(0.1)
         self.init_RSOC()
+        time.sleep(0.1)
 
     def init_RSOC(self) -> None:  # pylint: disable=invalid-name
         """Initialize the state of charge calculator"""
@@ -154,7 +169,7 @@ class LC709203F:
     def cell_temperature(self, value: float) -> None:
         """Sets the temperature in the LC709203F"""
         if self.thermistor_enable:
-            raise AttributeError("temperature can only be set in i2c mode")
+            raise ValueError("temperature can only be set in i2c mode")
         self._write_word(LC709203F_CMD_CELLTEMPERATURE, int(value + 273.15) * 10)
 
     @property
@@ -170,7 +185,7 @@ class LC709203F:
     @power_mode.setter
     def power_mode(self, mode: Literal[1, 2]) -> None:
         if not PowerMode.is_valid(mode):
-            raise AttributeError("power_mode must be a PowerMode")
+            raise ValueError("power_mode must be a PowerMode")
         self._write_word(LC709203F_CMD_POWERMODE, mode)
 
     @property
@@ -181,7 +196,7 @@ class LC709203F:
     @battery_profile.setter
     def battery_profile(self, mode: Literal[0, 1]) -> None:
         if not mode in (0, 1):
-            raise AttributeError("battery_profile must be 0 or 1")
+            raise ValueError("battery_profile must be 0 or 1")
         self._write_word(LC709203F_CMD_BATTPROF, mode)
 
     @property
@@ -192,7 +207,7 @@ class LC709203F:
     @pack_size.setter
     def pack_size(self, size: int) -> None:
         if not PackSize.is_valid(size):
-            raise AttributeError("pack_size must be a PackSize")
+            raise ValueError("pack_size must be a PackSize")
         self._write_word(LC709203F_CMD_APA, size)
 
     @property
@@ -214,7 +229,7 @@ class LC709203F:
     def thermistor_enable(self, status: bool) -> None:
         """Sets the temperature source to Tsense"""
         if not isinstance(status, bool):
-            raise AttributeError("thermistor_enable must be True or False")
+            raise ValueError("thermistor_enable must be True or False")
         self._write_word(LC709203F_CMD_STATUSBIT, status)
 
     # pylint: disable=no-self-use
@@ -243,7 +258,7 @@ class LC709203F:
             )
         crc8 = self._generate_crc(self._buf[0:5])
         if crc8 != self._buf[5]:
-            raise RuntimeError("CRC failure on reading word")
+            raise OSError("CRC failure on reading word")
         return (self._buf[4] << 8) | self._buf[3]
 
     def _write_word(self, command: int, data: int) -> None:
