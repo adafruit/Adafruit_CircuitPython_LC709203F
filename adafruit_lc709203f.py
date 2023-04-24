@@ -59,6 +59,8 @@ LC709203F_CMD_CELLITE = const(0x0F)
 LC709203F_CMD_CELLTEMPERATURE = const(0x08)
 LC709203F_CMD_THERMISTORB = const(0x06)
 LC709203F_CMD_STATUSBIT = const(0x16)
+LC709203F_CMD_ALARMPERCENT = const(0x13)
+LC709203F_CMD_ALARMVOLTAGE = const(0x14)
 
 
 class CV:
@@ -232,6 +234,32 @@ class LC709203F:
         if not isinstance(status, bool):
             raise ValueError("thermistor_enable must be True or False")
         self._write_word(LC709203F_CMD_STATUSBIT, status)
+
+    @property
+    def low_voltage_alarm_percent(self) -> int:
+        """Return the current low voltage alarm percentage.
+        0 indicates disabled."""
+        return self._read_word(LC709203F_CMD_ALARMPERCENT)
+
+    @low_voltage_alarm_percent.setter
+    def low_voltage_alarm_percent(self, percent: int) -> None:
+        """Set the low voltage alarm percentage.
+        Value of 0 disables the alarm"""
+        if not (0 < percent < 100):
+            raise ValueError("alarm voltage percent must be 0-100")
+        self._write_word(LC709203F_CMD_ALARMPERCENT, percent)
+
+    @property
+    def low_voltage_alarm(self) -> int:
+        """Return the current low voltage alarm value in mV
+        0 indicates disabled"""
+        return self._read_word(LC709203F_CMD_ALARMVOLTAGE)
+
+    @low_voltage_alarm.setter
+    def low_voltage_alarm(self, voltage: int) -> None:
+        """Set the low voltage alarm value in mV.
+        Value of 0 disables the alarm."""
+        self._write_word(LC709203F_CMD_ALARMVOLTAGE, voltage)
 
     # pylint: disable=no-self-use
     def _generate_crc(self, data: ReadableBuffer) -> int:
