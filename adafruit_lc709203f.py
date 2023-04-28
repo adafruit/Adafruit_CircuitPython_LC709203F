@@ -245,7 +245,7 @@ class LC709203F:
     def low_voltage_alarm_percent(self, percent: int) -> None:
         """Set the low voltage alarm percentage.
         Value of 0 disables the alarm"""
-        if not 0 < percent < 100:
+        if not 0 <= percent <= 100:
             raise ValueError("alarm voltage percent must be 0-100")
         self._write_word(LC709203F_CMD_ALARMPERCENT, percent)
 
