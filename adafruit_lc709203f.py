@@ -158,18 +158,27 @@ class LC709203F:
     @property
     def cell_voltage(self) -> float:
         """Returns floating point voltage"""
-        return self._read_word(LC709203F_CMD_CELLVOLTAGE) / 1000
-
+        try:
+            return self._read_word(LC709203F_CMD_CELLVOLTAGE) / 1000
+        except OSError:
+            return None
+            
     @property
     def cell_percent(self) -> float:
         """Returns percentage of cell capacity"""
-        return self._read_word(LC709203F_CMD_CELLITE) / 10
-
+        try:
+            return self._read_word(LC709203F_CMD_CELLITE) / 10
+        except OSError:
+            return None
+            
     @property
     def cell_temperature(self) -> float:
         """Returns the temperature of the cell"""
-        return self._read_word(LC709203F_CMD_CELLTEMPERATURE) / 10 - 273.15
-
+        try:
+            return self._read_word(LC709203F_CMD_CELLTEMPERATURE) / 10 - 273.15
+        except OSError:
+            return None
+            
     @cell_temperature.setter
     def cell_temperature(self, value: float) -> None:
         """Sets the temperature in the LC709203F"""
@@ -300,12 +309,12 @@ class LC709203F:
                     raise OSError("CRC failure on reading word")
                 return (self._buf[4] << 8) | self._buf[3]
             except OSError as exception:
-                # print("OSError: ", x, "/10: ", exception)
+                print("OSError in read: ", x, "/10: ", exception)
                 if x == (LC709203F_I2C_RETRY_COUNT - 1):
                     # Retry count reached
                     raise exception
 
-        # Code should never reach this point
+        # Code should never reach this point, add this to satisfy pylint R1710.
         return None
 
     def _write_word(self, command: int, data: int) -> None:
@@ -314,7 +323,6 @@ class LC709203F:
         self._buf[2] = data & 0xFF
         self._buf[3] = (data >> 8) & 0xFF
         self._buf[4] = self._generate_crc(self._buf[0:4])
-        # exception = None
 
         for x in range(LC709203F_I2C_RETRY_COUNT):
             try:
@@ -322,10 +330,7 @@ class LC709203F:
                     i2c.write(self._buf[1:5])
                 return
             except OSError as exception:
-                # print("OSError: ", x, "/10: ", exception)
+                print("OSError in write: ", x, "/10: ", exception)
                 if x == (LC709203F_I2C_RETRY_COUNT - 1):
                     # Retry count reached
                     raise exception
-
-        # Retry count reached
-        # raise exception
