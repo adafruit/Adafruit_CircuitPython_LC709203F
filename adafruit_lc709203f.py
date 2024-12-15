@@ -64,6 +64,7 @@ LC709203F_CMD_ALARMVOLTAGE = const(0x14)
 
 LC709203F_I2C_RETRY_COUNT = 10
 
+
 class CV:
     """struct helper"""
 
@@ -281,24 +282,31 @@ class LC709203F:
         self._buf[0] = LC709203F_I2CADDR_DEFAULT * 2  # write byte
         self._buf[1] = command  # command / register
         self._buf[2] = self._buf[0] | 0x1  # read byte
-        
-        for x in range (LC709203F_I2C_RETRY_COUNT):
+
+        for x in range(LC709203F_I2C_RETRY_COUNT):
             try:
                 with self.i2c_device as i2c:
-                    i2c.write_then_readinto(self._buf, self._buf, out_start=1, out_end=2, in_start=3, in_end=7)
-                    
+                    i2c.write_then_readinto(
+                        self._buf,
+                        self._buf,
+                        out_start=1,
+                        out_end=2,
+                        in_start=3,
+                        in_end=7,
+                    )
+
                 crc8 = self._generate_crc(self._buf[0:5])
                 if crc8 != self._buf[5]:
                     raise OSError("CRC failure on reading word")
                 return (self._buf[4] << 8) | self._buf[3]
-            except OSError as e:
-                #print("OSError: ", x, "/10: ", e)
-                pass
-            if x == (LC709203F_I2C_RETRY_COUNT-1):
-                #Retry count reached
-                raise e
-        
-        
+            except OSError as exception:
+                # print("OSError: ", x, "/10: ", exception)
+                if x == (LC709203F_I2C_RETRY_COUNT - 1):
+                    # Retry count reached
+                    raise exception
+
+        # Code should never reach this point
+        return None
 
     def _write_word(self, command: int, data: int) -> None:
         self._buf[0] = LC709203F_I2CADDR_DEFAULT * 2  # write byte
@@ -306,15 +314,18 @@ class LC709203F:
         self._buf[2] = data & 0xFF
         self._buf[3] = (data >> 8) & 0xFF
         self._buf[4] = self._generate_crc(self._buf[0:4])
-        
-        for x in range (LC709203F_I2C_RETRY_COUNT):
+        # exception = None
+
+        for x in range(LC709203F_I2C_RETRY_COUNT):
             try:
                 with self.i2c_device as i2c:
                     i2c.write(self._buf[1:5])
                 return
-            except OSError as e:
-                #print("OSError: ", x, "/10: ", e)
-                pass
-                
-        #Retry count reached
-        raise e
+            except OSError as exception:
+                # print("OSError: ", x, "/10: ", exception)
+                if x == (LC709203F_I2C_RETRY_COUNT - 1):
+                    # Retry count reached
+                    raise exception
+
+        # Retry count reached
+        # raise exception
