@@ -286,17 +286,19 @@ class LC709203F:
             try:
                 with self.i2c_device as i2c:
                     i2c.write_then_readinto(self._buf, self._buf, out_start=1, out_end=2, in_start=3, in_end=7)
-                break
+                    
+                crc8 = self._generate_crc(self._buf[0:5])
+                if crc8 != self._buf[5]:
+                    raise OSError("CRC failure on reading word")
+                return (self._buf[4] << 8) | self._buf[3]
             except OSError as e:
+                #print("OSError: ", x, "/10: ", e)
                 pass
             if x == (LC709203F_I2C_RETRY_COUNT-1):
                 #Retry count reached
                 raise e
         
-        crc8 = self._generate_crc(self._buf[0:5])
-        if crc8 != self._buf[5]:
-            raise OSError("CRC failure on reading word")
-        return (self._buf[4] << 8) | self._buf[3]
+        
 
     def _write_word(self, command: int, data: int) -> None:
         self._buf[0] = LC709203F_I2CADDR_DEFAULT * 2  # write byte
@@ -311,6 +313,7 @@ class LC709203F:
                     i2c.write(self._buf[1:5])
                 return
             except OSError as e:
+                #print("OSError: ", x, "/10: ", e)
                 pass
                 
         #Retry count reached
