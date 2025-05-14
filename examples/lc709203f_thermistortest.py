@@ -3,7 +3,9 @@
 # SPDX-License-Identifier: MIT
 
 import time
+
 import board
+
 from adafruit_lc709203f import LC709203F
 
 print("LC709203F thermistor test")
