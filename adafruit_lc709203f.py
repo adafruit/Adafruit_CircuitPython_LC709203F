@@ -34,14 +34,15 @@ Implementation Notes
 
 import time
 
-from micropython import const
 from adafruit_bus_device import i2c_device
+from micropython import const
 
 try:
     from typing import Iterable, Optional, Tuple
-    from typing_extensions import Literal
-    from circuitpython_typing import ReadableBuffer
+
     from busio import I2C
+    from circuitpython_typing import ReadableBuffer
+    from typing_extensions import Literal
 except ImportError:
     pass
 
@@ -67,9 +68,7 @@ class CV:
     """struct helper"""
 
     @classmethod
-    def add_values(
-        cls, value_tuples: Iterable[Tuple[str, int, str, Optional[float]]]
-    ) -> None:
+    def add_values(cls, value_tuples: Iterable[Tuple[str, int, str, Optional[float]]]) -> None:
         """Add CV values to the class"""
         cls.string = {}
         cls.lsb = {}
@@ -89,7 +88,7 @@ class CV:
 class PowerMode(CV):
     """Options for ``power_mode``"""
 
-    pass  # pylint: disable=unnecessary-pass
+    pass
 
 
 PowerMode.add_values(
@@ -103,7 +102,7 @@ PowerMode.add_values(
 class PackSize(CV):
     """Options for ``pack_size``"""
 
-    pass  # pylint: disable=unnecessary-pass
+    pass
 
 
 PackSize.add_values(
@@ -142,14 +141,14 @@ class LC709203F:
             raise value_exc
 
         self._buf = bytearray(10)
-        self.power_mode = PowerMode.OPERATE  # pylint: disable=no-member
-        self.pack_size = PackSize.MAH500  # pylint: disable=no-member
+        self.power_mode = PowerMode.OPERATE
+        self.pack_size = PackSize.MAH500
         self.battery_profile = 1  # 4.2V profile
         time.sleep(0.1)
         self.init_RSOC()
         time.sleep(0.1)
 
-    def init_RSOC(self) -> None:  # pylint: disable=invalid-name
+    def init_RSOC(self) -> None:
         """Initialize the state of charge calculator"""
         self._write_word(LC709203F_CMD_INITRSOC, 0xAA55)
 
@@ -198,7 +197,7 @@ class LC709203F:
 
     @battery_profile.setter
     def battery_profile(self, mode: Literal[0, 1]) -> None:
-        if not mode in (0, 1):
+        if mode not in {0, 1}:
             raise ValueError("battery_profile must be 0 or 1")
         self._write_word(LC709203F_CMD_BATTPROF, mode)
 
@@ -261,8 +260,7 @@ class LC709203F:
         Value of 0 disables the alarm."""
         self._write_word(LC709203F_CMD_ALARMVOLTAGE, voltage)
 
-    # pylint: disable=no-self-use
-    def _generate_crc(self, data: ReadableBuffer) -> int:
+    def _generate_crc(self, data: ReadableBuffer) -> int:  # noqa: PLR6301
         """8-bit CRC algorithm for checking data"""
         crc = 0x00
         # calculates 8-Bit checksum with given polynomial

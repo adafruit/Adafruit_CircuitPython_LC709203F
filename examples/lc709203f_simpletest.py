@@ -3,7 +3,9 @@
 # SPDX-License-Identifier: Unlicense
 
 import time
+
 import board
+
 from adafruit_lc709203f import LC709203F
 
 print("LC709203F simple test")
@@ -16,10 +18,7 @@ sensor = LC709203F(i2c)
 print("IC version:", hex(sensor.ic_version))
 while True:
     try:
-        print(
-            "Battery: %0.3f Volts / %0.1f %%"
-            % (sensor.cell_voltage, sensor.cell_percent)
-        )
+        print(f"Battery: {sensor.cell_voltage:.3f} Volts / {sensor.cell_percent:.1f} %")
     except OSError:
         print("retry reads")
 
