@@ -21,5 +21,5 @@ sensor.thermistor_enable = True
 
 print("IC version:", hex(sensor.ic_version))
 while True:
-    print("Cell Temperature: %0.2f C" % (sensor.cell_temperature))
+    print(f"Cell Temperature: {sensor.cell_temperature:.2f} C")
     time.sleep(1)
